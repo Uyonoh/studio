@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import uuid
+from typing import cast
 from datetime import UTC, datetime
 from decimal import Decimal
 from unittest.mock import AsyncMock, patch
@@ -271,7 +272,7 @@ async def test_run_generation_cancels_duplicate_when_webhook_won_race(
             job_dict["status"] = "running"
             job_dict["provider_job_id"] = "webhook_prediction"
             return "UPDATE 1"
-        return await original_execute(query, *params)
+        return cast(str, await original_execute(query, *params))
 
     conn.execute = AsyncMock(side_effect=execute_race)
     pool = make_mock_pool(conn)
@@ -281,6 +282,7 @@ async def test_run_generation_cancels_duplicate_when_webhook_won_race(
         await run_generation(ctx, job_id)
 
     mock_cancel.assert_awaited_once()
+    assert mock_cancel.await_args is not None
     ref = mock_cancel.await_args.args[0]
     assert ref.provider_job_id != "webhook_prediction"
     assert job_dict["provider_job_id"] == "webhook_prediction"
@@ -307,7 +309,7 @@ async def test_run_generation_reclaims_job_reset_during_submit(
             job_dict["status"] = "queued"
             job_dict["provider_job_id"] = params[1]
             return "UPDATE 1"
-        return await original_execute(query, *params)
+        return cast(str, await original_execute(query, *params))
 
     conn.execute = AsyncMock(side_effect=execute_reset)
     pool = make_mock_pool(conn)

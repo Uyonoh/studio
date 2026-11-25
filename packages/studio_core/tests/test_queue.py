@@ -28,6 +28,8 @@ from studio_core.queue import (
 class FakeArqPool:
     """Minimal stand-in for ``arq.connections.ArqRedis``."""
 
+    exists: AsyncMock
+
     def __init__(self, result: object = object(), error: Exception | None = None) -> None:
         self.result = result
         self.error = error
@@ -102,7 +104,7 @@ def test_in_progress_key_uses_arq_namespaced_job_id() -> None:
 async def test_is_task_in_progress_reads_arq_key() -> None:
     job_id = uuid4()
     pool = FakeArqPool()
-    pool.exists = AsyncMock(return_value=1)  # type: ignore[attr-defined]
+    pool.exists = AsyncMock(return_value=1)
 
     assert await is_task_in_progress(pool, TASK_RUN_GENERATION, job_id) is True
     pool.exists.assert_awaited_once_with(f"arq:in-progress:run_generation:{job_id}")
@@ -115,6 +117,6 @@ async def test_is_task_in_progress_false_without_redis() -> None:
 async def test_is_task_in_progress_conservative_on_redis_error() -> None:
     """A failed liveness check must not imply the task is dead."""
     pool = FakeArqPool()
-    pool.exists = AsyncMock(side_effect=ConnectionError("redis down"))  # type: ignore[attr-defined]
+    pool.exists = AsyncMock(side_effect=ConnectionError("redis down"))
 
     assert await is_task_in_progress(pool, TASK_RUN_GENERATION, uuid4()) is True
