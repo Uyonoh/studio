@@ -36,6 +36,9 @@ def test_parse_origin_regex_empty_returns_none() -> None:
 
 
 def test_create_app_passes_regex_origins_to_cors(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Isolate from any local .env WEB_ORIGINS so the default origin list is
+    # deterministic on every developer machine.
+    monkeypatch.setenv("WEB_ORIGINS", "http://localhost:3000")
     settings = Settings(regex_web_origins=r"^https://.*\.vercel\.app$")
     monkeypatch.setattr("api.main.get_settings", lambda: settings)
 
