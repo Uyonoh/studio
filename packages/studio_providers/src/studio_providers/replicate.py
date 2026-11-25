@@ -127,7 +127,8 @@ class ReplicateProvider:
         self.webhook_secret = webhook_secret
         self.base_url = base_url.rstrip("/")
         logger.info(
-            "ReplicateProvider initialized base_url=%s request_timeout=%s webhook_secret_configured=%s",
+            "ReplicateProvider initialized base_url=%s request_timeout=%s "
+            "webhook_secret_configured=%s",
             self.base_url,
             request_timeout,
             webhook_secret is not None,
@@ -156,14 +157,12 @@ class ReplicateProvider:
             len(req.params) if req.params else 0,
         )
         logger.debug(
-            "Replicate submit request details model=%s prompt=%s negative_prompt=%s inputs=%s params=%s",
+            "Replicate submit request details model=%s prompt=%s negative_prompt=%s "
+            "inputs=%s params=%s",
             req.model,
             req.prompt,
             req.negative_prompt,
-            [
-                {"role": inp.role, "url": inp.url}
-                for inp in (req.inputs or [])
-            ],
+            [{"role": inp.role, "url": inp.url} for inp in (req.inputs or [])],
             list((req.params or {}).keys()),
         )
 
@@ -190,7 +189,8 @@ class ReplicateProvider:
         is_video_model = req.model in _FIRST_FRAME_INPUT_KEY or req.model in _LAST_FRAME_INPUT_KEY
 
         logger.debug(
-            "Replicate submit slot resolution model=%s is_video_model=%s reference_list_key=%s reference_key=%s",
+            "Replicate submit slot resolution model=%s is_video_model=%s "
+            "reference_list_key=%s reference_key=%s",
             req.model,
             is_video_model,
             reference_list_key,
@@ -218,7 +218,8 @@ class ReplicateProvider:
                 if reference_list_key:
                     reference_urls.append(inp.url)
                     logger.debug(
-                        "Replicate submit routed reference_image -> reference_list_key=%s (count now %d) model=%s",
+                        "Replicate submit routed reference_image -> reference_list_key=%s "
+                        "(count now %d) model=%s",
                         reference_list_key,
                         len(reference_urls),
                         req.model,
@@ -232,7 +233,8 @@ class ReplicateProvider:
                     )
                 elif is_video_model:
                     logger.warning(
-                        "Replicate submit model=%s is a video model and does not accept reference images; raising PermanentProviderError",
+                        "Replicate submit model=%s is a video model and does not accept "
+                        "reference images; raising PermanentProviderError",
                         req.model,
                     )
                     raise PermanentProviderError(
@@ -241,7 +243,8 @@ class ReplicateProvider:
                 else:
                     image_urls.append(inp.url)
                     logger.debug(
-                        "Replicate submit routed reference_image -> image_urls (fallback, count now %d) model=%s",
+                        "Replicate submit routed reference_image -> image_urls "
+                        "(fallback, count now %d) model=%s",
                         len(image_urls),
                         req.model,
                     )
@@ -299,14 +302,16 @@ class ReplicateProvider:
                 single_key = _IMAGE_INPUT_KEY.get(req.model, "image")
                 input_payload[single_key] = image_urls[0]
                 logger.info(
-                    "Replicate submit set single image key=%s url_count=%d model=%s (only first image sent)",
+                    "Replicate submit set single image key=%s url_count=%d model=%s "
+                    "(only first image sent)",
                     single_key,
                     len(image_urls),
                     req.model,
                 )
                 if len(image_urls) > 1:
                     logger.warning(
-                        "Replicate submit model=%s uses single-image slot '%s' but %d init images were provided; only the first will be sent",
+                        "Replicate submit model=%s uses single-image slot '%s' but %d "
+                        "init images were provided; only the first will be sent",
                         req.model,
                         single_key,
                         len(image_urls),
@@ -316,7 +321,8 @@ class ReplicateProvider:
         before_param_count = len(input_payload)
         input_payload.update(req.params or {})
         logger.debug(
-            "Replicate submit merged %d model-specific params into input_payload (keys before merge=%d, after=%d) model=%s",
+            "Replicate submit merged %d model-specific params into input_payload "
+            "(keys before merge=%d, after=%d) model=%s",
             len(req.params or {}),
             before_param_count,
             len(input_payload),
@@ -506,7 +512,8 @@ class ReplicateProvider:
             # 404 or 409 means already done — swallow
             if resp.status_code not in (200, 201, 404, 409):
                 logger.warning(
-                    "Replicate cancel POST %s unexpected status=%s before _check_response provider_job_id=%s",
+                    "Replicate cancel POST %s unexpected status=%s before "
+                    "_check_response provider_job_id=%s",
                     url,
                     resp.status_code,
                     ref.provider_job_id,
@@ -547,7 +554,8 @@ class ReplicateProvider:
         signature_header = h.get("webhook-signature") or h.get("svix-signature")
 
         logger.debug(
-            "Replicate verify_webhook extracted headers msg_id=%s timestamp=%s signature_header_present=%s",
+            "Replicate verify_webhook extracted headers msg_id=%s timestamp=%s "
+            "signature_header_present=%s",
             msg_id,
             timestamp,
             bool(signature_header),
@@ -555,7 +563,8 @@ class ReplicateProvider:
 
         if not msg_id or not timestamp or not signature_header:
             logger.warning(
-                "Replicate verify_webhook FAILED missing headers msg_id=%s timestamp=%s signature_header_present=%s",
+                "Replicate verify_webhook FAILED missing headers msg_id=%s "
+                "timestamp=%s signature_header_present=%s",
                 bool(msg_id),
                 bool(timestamp),
                 bool(signature_header),
@@ -589,7 +598,8 @@ class ReplicateProvider:
 
         if time_diff > _WEBHOOK_TOLERANCE_SECONDS:
             logger.warning(
-                "Replicate verify_webhook FAILED timestamp outside tolerance time_diff=%.1fs tolerance=%ds",
+                "Replicate verify_webhook FAILED timestamp outside tolerance "
+                "time_diff=%.1fs tolerance=%ds",
                 time_diff,
                 _WEBHOOK_TOLERANCE_SECONDS,
             )
@@ -646,7 +656,8 @@ class ReplicateProvider:
         outputs = self.normalize_output(payload) if state == ProviderJobState.SUCCEEDED else []
 
         logger.info(
-            "Replicate verify_webhook SUCCESS provider_job_id=%s raw_status=%s state=%s num_outputs=%d",
+            "Replicate verify_webhook SUCCESS provider_job_id=%s raw_status=%s "
+            "state=%s num_outputs=%d",
             payload.get("id", ""),
             raw_status,
             state.value,
@@ -682,9 +693,7 @@ class ReplicateProvider:
         )
 
         if raw_output is None:
-            logger.debug(
-                "Replicate normalize_output raw_output is None; returning empty outputs"
-            )
+            logger.debug("Replicate normalize_output raw_output is None; returning empty outputs")
             return outputs
 
         # Single string URL
@@ -721,7 +730,8 @@ class ReplicateProvider:
                     kind = AssetKind.VIDEO if is_video else _guess_kind_from_url(url)
                     outputs.append(ProviderOutput(url=url, mime_type=mime, kind=kind))
                     logger.debug(
-                        "Replicate normalize_output item[%d] dict url=%s mime_type=%s is_video=%s kind=%s",
+                        "Replicate normalize_output item[%d] dict url=%s mime_type=%s "
+                        "is_video=%s kind=%s",
                         index,
                         url,
                         mime,
