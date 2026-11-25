@@ -204,6 +204,17 @@ class MockDB:
             if "FROM public.workspaces" in query and "FOR UPDATE" in query:
                 return params[0]
 
+            if "FROM public.assets" in query and "count(*)" in query:
+                project_id = params[0]
+                kind = params[1]
+                return sum(
+                    1
+                    for a in self.assets.values()
+                    if a.get("project_id") == project_id
+                    and a.get("kind") == kind
+                    and a.get("deleted_at") is None
+                )
+
             return None
 
         async def execute(query: str, *params: Any) -> str:
@@ -226,6 +237,9 @@ class MockDB:
                 return "UPDATE 1"
 
             if "INSERT INTO public.assets" in query:
+                # id, workspace_id, project_id, kind, origin, name, storage_bucket,
+                # storage_path, thumbnail_path, mime_type, size_bytes, width, height,
+                # duration_ms, fps, source_job_id, metadata, created_by
                 asset_id = params[0]
                 self.assets[asset_id] = {
                     "id": asset_id,
@@ -233,19 +247,20 @@ class MockDB:
                     "project_id": params[2],
                     "kind": params[3],
                     "origin": params[4],
-                    "storage_bucket": params[5],
-                    "storage_path": params[6],
-                    "thumbnail_path": params[7],
-                    "mime_type": params[8],
-                    "size_bytes": params[9],
-                    "width": params[10],
-                    "height": params[11],
-                    "duration_ms": params[12],
-                    "fps": params[13],
-                    "source_job_id": params[14],
+                    "name": params[5],
+                    "storage_bucket": params[6],
+                    "storage_path": params[7],
+                    "thumbnail_path": params[8],
+                    "mime_type": params[9],
+                    "size_bytes": params[10],
+                    "width": params[11],
+                    "height": params[12],
+                    "duration_ms": params[13],
+                    "fps": params[14],
+                    "source_job_id": params[15],
                     "parent_asset_id": None,
-                    "metadata": params[15],
-                    "created_by": params[16],
+                    "metadata": params[16],
+                    "created_by": params[17],
                     "created_at": datetime.now(UTC),
                     "deleted_at": None,
                 }
