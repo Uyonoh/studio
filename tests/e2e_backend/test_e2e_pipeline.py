@@ -284,27 +284,31 @@ class E2EState:
                 return entry
 
             if "INSERT INTO public.assets" in query and "RETURNING" in query:
+                # id, workspace_id, project_id, kind, origin, name, storage_bucket,
+                # storage_path, thumbnail_path, mime_type, size_bytes, width, height,
+                # duration_ms, fps, source_job_id, metadata, created_by
                 asset_id = uuid4()
-                raw_meta = params[15] if len(params) > 15 else {}
+                raw_meta = params[16] if len(params) > 16 else {}
                 asset = {
                     "id": asset_id,
                     "workspace_id": params[0],
                     "project_id": params[1],
                     "kind": params[2],
                     "origin": params[3],
-                    "storage_bucket": params[4],
-                    "storage_path": params[5],
-                    "thumbnail_path": params[6],
-                    "mime_type": params[7],
-                    "size_bytes": params[8],
-                    "width": params[9] if len(params) > 9 else None,
-                    "height": params[10] if len(params) > 10 else None,
-                    "duration_ms": params[11] if len(params) > 11 else None,
-                    "fps": params[12] if len(params) > 12 else None,
-                    "source_job_id": params[13] if len(params) > 13 else None,
-                    "parent_asset_id": params[14] if len(params) > 14 else None,
+                    "name": params[4],
+                    "storage_bucket": params[5],
+                    "storage_path": params[6],
+                    "thumbnail_path": params[7],
+                    "mime_type": params[8],
+                    "size_bytes": params[9] if len(params) > 9 else None,
+                    "width": params[10] if len(params) > 10 else None,
+                    "height": params[11] if len(params) > 11 else None,
+                    "duration_ms": params[12] if len(params) > 12 else None,
+                    "fps": params[13] if len(params) > 13 else None,
+                    "source_job_id": params[14] if len(params) > 14 else None,
+                    "parent_asset_id": None,
                     "metadata": json.loads(raw_meta) if isinstance(raw_meta, str) else raw_meta,
-                    "created_by": params[16] if len(params) > 16 else None,
+                    "created_by": params[17] if len(params) > 17 else None,
                     "created_at": now,
                     "deleted_at": None,
                 }
@@ -350,6 +354,17 @@ class E2EState:
 
             if "FROM public.generation_jobs" in query and "count(*)" in query:
                 return 0  # concurrency count
+
+            if "FROM public.assets" in query and "count(*)" in query:
+                project_id = params[0]
+                kind = params[1]
+                return sum(
+                    1
+                    for a in self.assets.values()
+                    if a.get("project_id") == project_id
+                    and a.get("kind") == kind
+                    and a.get("deleted_at") is None
+                )
 
             return None
 
@@ -407,6 +422,9 @@ class E2EState:
                 return "UPDATE 1"
 
             if "INSERT INTO public.assets" in query:
+                # id, workspace_id, project_id, kind, origin, name, storage_bucket,
+                # storage_path, thumbnail_path, mime_type, size_bytes, width, height,
+                # duration_ms, fps, source_job_id, metadata, created_by
                 asset_id = params[0]
                 self.assets[asset_id] = {
                     "id": asset_id,
@@ -414,21 +432,22 @@ class E2EState:
                     "project_id": params[2],
                     "kind": params[3],
                     "origin": params[4],
-                    "storage_bucket": params[5],
-                    "storage_path": params[6],
-                    "thumbnail_path": params[7],
-                    "mime_type": params[8],
-                    "size_bytes": params[9],
-                    "width": params[10],
-                    "height": params[11],
-                    "duration_ms": params[12],
-                    "fps": params[13],
-                    "source_job_id": params[14],
+                    "name": params[5],
+                    "storage_bucket": params[6],
+                    "storage_path": params[7],
+                    "thumbnail_path": params[8],
+                    "mime_type": params[9],
+                    "size_bytes": params[10],
+                    "width": params[11],
+                    "height": params[12],
+                    "duration_ms": params[13],
+                    "fps": params[14],
+                    "source_job_id": params[15],
                     "parent_asset_id": None,
-                    "metadata": json.loads(params[15])
-                    if isinstance(params[15], str)
-                    else params[15],
-                    "created_by": params[16],
+                    "metadata": json.loads(params[16])
+                    if isinstance(params[16], str)
+                    else params[16],
+                    "created_by": params[17],
                     "created_at": now,
                     "deleted_at": None,
                 }
