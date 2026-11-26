@@ -130,7 +130,7 @@ export default function ModelGuidePage() {
         </p>
         <Link
           href="/settings?tab=models"
-          className="text-xs font-medium text-[#A995FF] hover:underline"
+          className="underline text-xs font-medium text-[#A995FF] hover:underline"
         >
           Open AI Models &amp; Providers
         </Link>
@@ -175,7 +175,7 @@ export default function ModelGuidePage() {
 
       {/* Provider legend */}
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-2xl border border-[#262A35] bg-[#14161C] px-4 py-3">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#6B7280]">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#9AA1B2]">
           Providers
         </span>
         {providers.map((providerId) => (
@@ -192,7 +192,7 @@ export default function ModelGuidePage() {
             {providerLabel(providerId)}
           </span>
         ))}
-        <span className="ml-auto font-mono text-[11px] text-[#6B7280]">
+        <span className="ml-auto font-mono text-[11px] text-[#9AA1B2]">
           {models.length} models enabled
         </span>
       </div>
@@ -283,11 +283,11 @@ export default function ModelGuidePage() {
         </ul>
       </section>
 
-      <p className="text-center text-xs text-[#6B7280]">
+      <p className="text-center text-xs text-[#9AA1B2]">
         Looking for slugs, input schemas, and provider metadata?{" "}
         <Link
           href="/settings?tab=models"
-          className="text-[#A995FF] hover:underline"
+          className="underline text-[#A995FF] hover:underline"
         >
           Open AI Models &amp; Providers
         </Link>

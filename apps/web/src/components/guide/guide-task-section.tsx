@@ -156,7 +156,7 @@ export function GuideTaskSection({
                       </span>
                       {isRecommended && <RecommendationBadge />}
                     </div>
-                    <span className="mt-0.5 block font-mono text-[10px] text-[#6B7280]">
+                    <span className="mt-0.5 block font-mono text-[10px] text-[#9AA1B2]">
                       {model.slug}
                     </span>
                   </th>
@@ -236,7 +236,7 @@ export function GuideTaskSection({
                     </h3>
                     {isRecommended && <RecommendationBadge />}
                   </div>
-                  <p className="mt-0.5 font-mono text-[10px] text-[#6B7280]">
+                  <p className="mt-0.5 font-mono text-[10px] text-[#9AA1B2]">
                     {model.slug}
                   </p>
                 </div>
