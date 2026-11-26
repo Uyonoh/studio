@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Check, ChevronDown } from "lucide-react";
 import type { StudioModel } from "@/hooks/use-models";
@@ -91,7 +91,7 @@ export function ModelPicker({
   const selectedModel = models.find((model) => model.slug === value) ?? null;
   const selectedIndex = flatModels.findIndex((model) => model.slug === value);
 
-  function updateDropdownPosition() {
+  const updateDropdownPosition = useCallback(() => {
     if (!triggerRef.current) return;
     const rect = triggerRef.current.getBoundingClientRect();
     if (compact) {
@@ -107,7 +107,7 @@ export function ModelPicker({
         width: rect.width,
       });
     }
-  }
+  }, [compact]);
 
   function openList() {
     setActiveIndex(selectedIndex >= 0 ? selectedIndex : 0);
@@ -160,7 +160,7 @@ export function ModelPicker({
       window.removeEventListener("scroll", handleScrollOrResize, true);
       window.removeEventListener("resize", handleScrollOrResize);
     };
-  }, [open, compact]);
+  }, [open, updateDropdownPosition]);
 
   function handleTriggerKeyDown(event: React.KeyboardEvent<HTMLButtonElement>) {
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
